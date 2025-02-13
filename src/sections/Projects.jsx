@@ -37,7 +37,7 @@ const Projects = () => {
             title: 'TaskFlow',
             description: 'A modern, responsive Todo List application built with the MERN stack, featuring comprehensive task management capabilities and an admin panel.',
             tags: ['MongoDB', 'Express.js', 'React.js', 'Node.js', 'TailwindCSS'],
-            githubLink: 'https://github.com/a-agouzou/Web-coding-challenge',
+            githubLink: 'https://github.com/a-agouzou/TaskFlow',
             liveLink: '',
             highlights: [
                 'Implemented Create, Read, Update, and Delete (CRUD) functionalities',
