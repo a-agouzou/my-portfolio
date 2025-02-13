@@ -11,8 +11,8 @@ const Projects = () => {
             title: 'Paddlefy',
             description: 'A robust web application enabling seamless real-time communication and efficient channel management, built with Django and React.',
             tags: ['Django', 'React', 'Docker', 'PostgreSQL', 'Redis', 'WebSockets'],
-            githubLink: 'https://github.com/a-agouzou/paddlefy',
-            liveLink: '#',
+            githubLink: 'https://github.com/a-agouzou',
+            liveLink: '',
             highlights: [
                 'Created an interactive and responsive user interface for chat and channel interactions',
                 'Implemented real-time communication using Django Channels and WebSockets',
@@ -24,8 +24,8 @@ const Projects = () => {
             title: 'Barbershop Booking System',
             description: 'An intuitive application for scheduling and managing barbershop appointments, featuring a dynamic calendar system and comprehensive service management.',
             tags: ['React', 'TailwindCSS', 'LocalStorage'],
-            githubLink: 'https://github.com/a-agouzou/barbershop-booking',
-            liveLink: '#',
+            githubLink: 'https://github.com/a-agouzou/Barbershop',
+            liveLink: 'https://barbershop-taupe-eta.vercel.app/',
             highlights: [
                 'Developed a responsive and user-friendly interface for booking management',
                 'Simulated backend functionality using local storage for rapid development',
@@ -37,8 +37,8 @@ const Projects = () => {
             title: 'TaskFlow',
             description: 'A modern, responsive Todo List application built with the MERN stack, featuring comprehensive task management capabilities and an admin panel.',
             tags: ['MongoDB', 'Express.js', 'React.js', 'Node.js', 'TailwindCSS'],
-            githubLink: 'https://github.com/a-agouzou/taskflow',
-            liveLink: '#',
+            githubLink: 'https://github.com/a-agouzou/Web-coding-challenge',
+            liveLink: '',
             highlights: [
                 'Implemented Create, Read, Update, and Delete (CRUD) functionalities',
                 'Enabled task completion tracking with toggle functionality',
@@ -50,8 +50,8 @@ const Projects = () => {
             title: 'Inception',
             description : 'An infrastructure for a WordPress site using containerization and virtualization technologies',
             tags: ['Docker', 'WordPress', 'Nginx', 'MariaDB'],
-            githubLink: 'https://github.com/a-agouzou/taskflow',
-            liveLink: '#',
+            githubLink: 'https://github.com/a-agouzou/inception',
+            liveLink: '',
             highlights: [
                 "Built a secure and scalable infrastructure for a WordPress site using Docker and Nginx.",
                 "Created custom Dockerfiles for services like NGINX (secured with TLS), WordPress, and MariaDB",
