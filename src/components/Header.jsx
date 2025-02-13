@@ -20,11 +20,11 @@ const Header = () => {
     ];
 
     const handleResumeClick = () => {
-        const resumePath = '/resume.pdf';
+        const resumePath = '/Abdellah_Agouzoul_Software_Engineer.pdf';
         
         const link = document.createElement('a');
         link.href = resumePath;
-        link.download = 'abdellah_agouzoul_software_engineer_resume.pdf';
+        link.download = 'abdellah_agouzoul_software_engineer.pdf';
         link.target = '_blank';
         
         document.body.appendChild(link);
