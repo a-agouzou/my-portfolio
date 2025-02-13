@@ -94,6 +94,7 @@ const Projects = () => {
                                     >
                                         <FaGithub className="w-5 h-5" />
                                     </a>
+                                    {project.liveLink && (
                                     <a 
                                         href={project.liveLink}
                                         target="_blank"
@@ -103,6 +104,7 @@ const Projects = () => {
                                     >
                                         <FaExternalLinkAlt className="w-5 h-5" />
                                     </a>
+                                    )}
                                 </div>
                             </div>
 
