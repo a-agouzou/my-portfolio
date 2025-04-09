@@ -8,11 +8,11 @@ import { BsDot } from 'react-icons/bs';
 const Projects = () => {
     const projects = [
         {
-            title: 'Paddlefy',
-            description: 'A robust web application enabling seamless real-time communication and efficient channel management, built with Django and React.',
+            title: 'pongiverse',
+            description: 'a real-time multiplayer web app where users can play online ping pong, chat live, and enjoy a variety of interactive features.',
             tags: ['Django', 'React', 'Docker', 'PostgreSQL', 'Redis', 'WebSockets'],
             githubLink: 'https://github.com/a-agouzou',
-            liveLink: '',
+            liveLink: 'https://pongiverse.me',
             highlights: [
                 'Created an interactive and responsive user interface for chat and channel interactions',
                 'Implemented real-time communication using Django Channels and WebSockets',
@@ -24,7 +24,7 @@ const Projects = () => {
             title: 'Barbershop Booking System',
             description: 'An intuitive application for scheduling and managing barbershop appointments, featuring a dynamic calendar system and comprehensive service management.',
             tags: ['React', 'TailwindCSS', 'LocalStorage'],
-            githubLink: 'https://github.com/a-agouzou/Barbershop',
+            githubLink: 'https://github.com/a-agouzou/Barbershop-Booking-System',
             liveLink: 'https://barbershop-taupe-eta.vercel.app/',
             highlights: [
                 'Developed a responsive and user-friendly interface for booking management',
@@ -47,10 +47,10 @@ const Projects = () => {
             ]
         },
         {
-            title: 'Inception',
+            title: ' Inception - Dockerized WordPress Infrastructure',
             description : 'An infrastructure for a WordPress site using containerization and virtualization technologies',
             tags: ['Docker', 'WordPress', 'Nginx', 'MariaDB'],
-            githubLink: 'https://github.com/a-agouzou/inception',
+            githubLink: 'https://github.com/a-agouzou/Inception-Dockerized-WordPress-Infrastructure',
             liveLink: '',
             highlights: [
                 "Built a secure and scalable infrastructure for a WordPress site using Docker and Nginx.",
@@ -59,7 +59,7 @@ const Projects = () => {
                 "Designed an isolated network for containers to enhance security and controlled communication"
             ]
     
-        }
+        },
     ];
 
     return (
