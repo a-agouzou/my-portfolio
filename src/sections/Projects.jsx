@@ -8,7 +8,7 @@ import { BsDot } from 'react-icons/bs';
 const Projects = () => {
     const projects = [
         {
-            title: 'pongiverse',
+            title: 'Pongiverse',
             description: 'a real-time multiplayer web app where users can play online ping pong, chat live, and enjoy a variety of interactive features.',
             tags: ['Django', 'React', 'Docker', 'PostgreSQL', 'Redis', 'WebSockets'],
             githubLink: 'https://github.com/a-agouzou',
