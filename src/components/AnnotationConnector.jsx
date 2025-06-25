@@ -8,7 +8,7 @@ const AnnotationConnector = () => {
     // This is a self-contained script. It won't interfere with your app's state.
     
     // The origin of our annotation app.
-    const parentOrigin = 'https://www.your-annotation-app.com'; // This will be your real domain
+    const parentOrigin = "http://localhost:5173/" // This will be your real domain
 
     let scrollTimeout;
 
