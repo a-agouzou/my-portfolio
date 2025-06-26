@@ -1,73 +1,66 @@
-// src/components/AnnotationConnector.js
+// src/components/AnnotationScrollReporter.js
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import PropTypes from 'prop-types';
 
-const AnnotationConnector = () => {
+/**
+ * A component that reports the window's scroll position to a parent window.
+ * This should be used when the React app is embedded in an iframe for annotation.
+ * It renders nothing to the DOM.
+ * @param {object} props
+ * @param {string} props.parentOrigin - The origin of the parent window to send messages to.
+ */
+function AnnotationScrollReporter({ parentOrigin }) {
   useEffect(() => {
-    // Check if the window is inside an iframe before doing anything.
-    // This prevents the script from running on the user's actual site.
-    if (window.self === window.top) {
+    // Guard clause: If not embedded in an iframe, do nothing.
+    if (window.parent === window) {
       return;
     }
 
-    // --- Configuration ---
-    const parentOrigin = "http://localhost:5173"; // Your real domain in production
+    // Ensure a valid origin is provided before attaching listeners.
+    if (!parentOrigin) {
+      console.warn('AnnotationScrollReporter: `parentOrigin` prop is missing. No scroll data will be sent.');
+      return;
+    }
 
-    // --- Scroll Reporting Logic ---
-    let scrollTimeout;
-    const sendScrollPosition = () => {
-      if (scrollTimeout) {
-        cancelAnimationFrame(scrollTimeout);
-      }
-      scrollTimeout = requestAnimationFrame(() => {
-        if (window.parent && window.parent !== window) {
-           const scrollData = {
-            type: 'iframe-scroll',
-            payload: { x: window.scrollX, y: window.scrollY },
-          };
-          window.parent.postMessage(scrollData, parentOrigin);
-        }
-      });
-    };
-
-    // --- Dimension Reporting Logic ---
-    const sendDimensions = () => {
-      // Use the body's scrollHeight/scrollWidth for the most accurate content size
-      const dimensions = {
-        width: document.body.scrollWidth,
-        height: document.body.scrollHeight,
-      };
+    const postScrollPosition = () => {
+      // Check for parent again in case the frame is detached dynamically.
       if (window.parent && window.parent !== window) {
-        const resizeData = { type: 'iframe-resize', payload: dimensions };
-        window.parent.postMessage(resizeData, parentOrigin);
+        const message = {
+          type: 'iframe-scroll',
+          payload: {
+            x: window.scrollX,
+            y: window.scrollY,
+          },
+        };
+        // Send the message to the parent window, specifying its origin for security.
+        window.parent.postMessage(message, parentOrigin);
       }
     };
-    
-    // --- Attach Event Listeners ---
-    window.addEventListener('scroll', sendScrollPosition, { passive: true });
 
-    // Send initial data when the page is fully loaded
-    window.addEventListener('load', () => {
-      sendScrollPosition();
-      sendDimensions();
-    });
+    // --- Attach Listeners ---
 
-    // Use a ResizeObserver to detect content changes (e.g., accordions opening)
-    const resizeObserver = new ResizeObserver(sendDimensions);
-    resizeObserver.observe(document.body);
+    // Send the initial scroll position once the component has mounted.
+    postScrollPosition();
 
-    // --- Cleanup Logic ---
+    // Add the scroll event listener.
+    window.addEventListener('scroll', postScrollPosition, { passive: true });
+
+    // --- Cleanup Function ---
+    // This function will be called when the component unmounts.
     return () => {
-      window.removeEventListener('scroll', sendScrollPosition);
-      // 'load' event doesn't need removal as it fires once
-      resizeObserver.disconnect();
-      if (scrollTimeout) {
-          cancelAnimationFrame(scrollTimeout);
-      }
+      window.removeEventListener('scroll', postScrollPosition);
     };
-  }, []); // Empty dependency array ensures this runs only once on mount
 
-  return null; // This component renders nothing to the DOM
+    // The dependency array ensures this effect runs only when parentOrigin changes.
+  }, [parentOrigin]);
+
+  // This component does not render any UI.
+  return null;
+}
+
+AnnotationScrollReporter.propTypes = {
+  parentOrigin: PropTypes.string.isRequired,
 };
 
-export default AnnotationConnector;
+export default AnnotationScrollReporter;
