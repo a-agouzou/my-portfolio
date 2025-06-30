@@ -6,9 +6,9 @@ function App() {
   const ANNOTATION_TOOL_ORIGIN = 'http://localhost:5173'; // Replace with the actual origin of your annotation tool
   return (
     <>
-    <AnnotationScrollReporter
-      parentOrigin={ANNOTATION_TOOL_ORIGIN} // Pass the origin of the parent window
-    />
+    {/* <AnnotationScrollReporter
+      parentOrigin={ANNOTATION_TOOL_ORIGIN}
+    /> */}
     <Portfolio />
     </>
   )
