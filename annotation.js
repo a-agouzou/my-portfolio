@@ -68,9 +68,85 @@
  * This script provides scroll reporting and on-demand DOM snapshots.
  * It requires the rrweb library to be loaded first.
  */
+// (function() {
+//   const PARENT_ORIGIN = 'http://localhost:5173'; 
+
+//   if (window.annotationScriptAttached) {
+//     return;
+//   }
+//   window.annotationScriptAttached = true;
+
+//   function postScrollPosition() {
+//     if (window.self !== window.top) {
+//       const message = { type: 'iframe-scroll', payload: { x: window.scrollX, y: window.scrollY } };
+//       window.parent.postMessage(message, PARENT_ORIGIN);
+//     }
+//   }
+
+//   function handleParentMessage(event) {
+//     if (event.origin !== PARENT_ORIGIN) {
+//       return;
+//     }
+
+//     const { type } = event.data;
+
+//     if (type === 'REQUEST_DOM_SNAPSHOT') {
+//       if (typeof rrweb === 'undefined' || typeof rrweb.record !== 'function') {
+//         console.error("Annotation Script: 'rrweb.record' is not available. Cannot take snapshot.");
+//         return;
+//       }
+
+//       try {
+
+//         let snapshotData = null;
+
+//         const stopRecording = rrweb.record({
+//           emit: (event, isCheckout) => {
+//             if (event.type === 2) {
+//               snapshotData = event.data;
+//             }
+//           },
+//           checkoutEveryNms: 1000 * 60 * 60,
+//         });
+//         setTimeout(() => {
+//           if (stopRecording) {
+//             stopRecording();
+//           }
+
+//           if (snapshotData) {
+//             const responseMessage = {
+//               type: 'DOM_SNAPSHOT_DATA',
+//               payload: snapshotData,
+//             };
+//             window.parent.postMessage(responseMessage, PARENT_ORIGIN);
+//           } else {
+//             console.error("Annotation Script: Failed to capture snapshot from rrweb emit.");
+//           }
+//         }, 100); 
+//       } catch (e) {
+//         console.error("Annotation Script: Error during rrweb recording for snapshot.", e);
+//       }
+//     }
+//   }
+
+//   if (window.self !== window.top) {
+//     window.addEventListener('scroll', postScrollPosition, { passive: true });
+//     window.addEventListener('message', handleParentMessage, false);
+//     postScrollPosition();
+//     console.log("Annotation helper script (v2.1) attached successfully.");
+//   }
+// })();
+
+
+/**
+ * Annotation Helper Script (v3.1 - HTML Snapshot with Base Tag)
+ *
+ * This script provides scroll reporting and on-demand HTML snapshots.
+ * It has NO external dependencies (no rrweb needed).
+ */
 (function() {
   // --- CONFIGURATION ---
-  const PARENT_ORIGIN = 'http://localhost:5173'; // Make sure this is correct
+  const PARENT_ORIGIN = 'http://localhost:5173'; // Make sure this is correct for your dev environment
 
   // --- SCRIPT INITIALIZATION ---
   if (window.annotationScriptAttached) {
@@ -78,72 +154,48 @@
   }
   window.annotationScriptAttached = true;
 
-  // --- SCROLL REPORTING (No changes here) ---
+  // --- SCROLL REPORTING ---
   function postScrollPosition() {
     if (window.self !== window.top) {
-      const message = { type: 'iframe-scroll', payload: { x: window.scrollX, y: window.scrollY } };
+      const message = {
+        type: 'iframe-scroll',
+        payload: { x: window.scrollX, y: window.scrollY },
+      };
       window.parent.postMessage(message, PARENT_ORIGIN);
     }
   }
 
   // --- PARENT COMMUNICATION LISTENER ---
   function handleParentMessage(event) {
-    // Security: Always verify the origin
-    if (event.origin !== PARENT_ORIGIN) {
-      return;
-    }
-
+    if (event.origin !== PARENT_ORIGIN) return;
     const { type } = event.data;
 
+    // Handle the specific request for an HTML snapshot
     if (type === 'REQUEST_DOM_SNAPSHOT') {
-      // Check if rrweb library is loaded
-      if (typeof rrweb === 'undefined' || typeof rrweb.record !== 'function') {
-        console.error("Annotation Script: 'rrweb.record' is not available. Cannot take snapshot.");
-        return;
-      }
-
       try {
-        // ========================================================================
-        // --- THIS IS THE CRITICAL FIX ---
-        // The standard CDN build does not have `rrweb.snapshot()`.
-        // The correct way to get a snapshot is to create a temporary recorder
-        // instance and have it emit the initial snapshot immediately.
-        // ========================================================================
-        let snapshotData = null;
+        // --- THIS IS THE NEW LOGIC ---
+        // 1. Get the original document's base URL (e.g., https://www.aagouzou.me)
+        const baseUrl = document.location.origin;
 
-        const stopRecording = rrweb.record({
-          emit: (event, isCheckout) => {
-            // The first event emitted by rrweb.record is a full snapshot.
-            // We capture it and then immediately stop listening.
-            if (event.type === 2) { // EventType.FullSnapshot
-              snapshotData = event.data;
-            }
-          },
-          checkoutEveryNms: 1000 * 60 * 60, // Set a very long checkout time
-        });
+        // 2. Create a <base> tag to fix relative links for CSS/images
+        const baseTag = `<base href="${baseUrl}/" />`;
 
-        // We must stop the recorder immediately after it gives us the first snapshot.
-        // A small timeout ensures the `emit` callback has had a chance to run.
-        setTimeout(() => {
-          if (stopRecording) {
-            stopRecording();
-          }
+        // 3. Get the entire HTML of the document as a string.
+        let htmlSnapshot = document.documentElement.outerHTML;
 
-          // Now that we have the snapshot, send it back to the parent
-          if (snapshotData) {
-            const responseMessage = {
-              type: 'DOM_SNAPSHOT_DATA',
-              payload: snapshotData,
-            };
-            window.parent.postMessage(responseMessage, PARENT_ORIGIN);
-          } else {
-            console.error("Annotation Script: Failed to capture snapshot from rrweb emit.");
-          }
-        }, 100); // 100ms is more than enough time to get the initial snapshot.
-        // ========================================================================
+        // 4. Inject the <base> tag right after the <head> tag.
+        // This is a robust way to ensure it's at the top of the head.
+        htmlSnapshot = htmlSnapshot.replace(/<head[^>]*>/, `$&${baseTag}`);
+
+        // 5. Send the captured HTML string back to the parent.
+        const responseMessage = {
+          type: 'DOM_SNAPSHOT_DATA',
+          payload: htmlSnapshot, // The payload is now a simple string
+        };
+        window.parent.postMessage(responseMessage, PARENT_ORIGIN);
 
       } catch (e) {
-        console.error("Annotation Script: Error during rrweb recording for snapshot.", e);
+        console.error("Annotation Script: Error getting document HTML.", e);
       }
     }
   }
@@ -153,6 +205,6 @@
     window.addEventListener('scroll', postScrollPosition, { passive: true });
     window.addEventListener('message', handleParentMessage, false);
     postScrollPosition();
-    console.log("Annotation helper script (v2.1) attached successfully.");
+    console.log("Annotation helper script (v3.1) attached successfully.");
   }
 })();
