@@ -18,6 +18,7 @@
 
   function postPageUrl() {
     if (window.self !== window.top) {
+      console.log("Posting page URL to parent frame:", window.location.href);
       const message = {
         type: "iframe-url-change",
         payload: { url: window.location.href },
