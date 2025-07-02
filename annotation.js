@@ -16,6 +16,15 @@
     }
   }
 
+  function postPageUrl() {
+    if (window.self !== window.top) {
+      const message = {
+        type: "iframe-url-change",
+        payload: { url: window.location.href },
+      };
+      window.parent.postMessage(message, PARENT_ORIGIN);
+    }
+  }
 
   function handleParentMessage(event) {
     if (event.origin !== PARENT_ORIGIN) return;
@@ -24,11 +33,9 @@
     if (type === "REQUEST_DOM_SNAPSHOT") {
       try {
         const baseUrl = document.location.origin;
-
         const baseTag = `<base href="${baseUrl}/" />`;
 
         let htmlSnapshot = document.documentElement.outerHTML;
-
         htmlSnapshot = htmlSnapshot.replace(/<head[^>]*>/, `$&${baseTag}`);
 
         const responseMessage = {
@@ -42,10 +49,32 @@
     }
   }
 
+  // Monitor client-side routing (SPA navigation)
+  function patchHistoryMethods() {
+    const originalPushState = history.pushState;
+    history.pushState = function (...args) {
+      originalPushState.apply(this, args);
+      postPageUrl();
+    };
+
+    const originalReplaceState = history.replaceState;
+    history.replaceState = function (...args) {
+      originalReplaceState.apply(this, args);
+      postPageUrl();
+    };
+
+    window.addEventListener("popstate", postPageUrl);
+  }
+
   if (window.self !== window.top) {
     window.addEventListener("scroll", postScrollPosition, { passive: true });
     window.addEventListener("message", handleParentMessage, false);
+    window.addEventListener("load", postPageUrl, false);
+
     postScrollPosition();
-    console.log("Annotation helper script (v3.1) attached successfully.");
+    postPageUrl();
+    patchHistoryMethods();
+
+    console.log("Annotation helper script (v3.2) attached successfully.");
   }
 })();
