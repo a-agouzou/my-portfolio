@@ -1,15 +1,15 @@
-import { Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./assets/styles/global.css";
 import Portfolio from "./pages/Portfolio";
-import { BrowserRouter as Router } from "react-router-dom";
 import Test from "./pages/Test";
 
 function App() {
   return (
     <Router>
-      <Route path="/" element={<Portfolio />} />
-      <Route path="/test" element={<Test />} />
-      {/* Add more routes as needed */}
+      <Routes>
+        <Route path="/" element={<Portfolio />} />
+        <Route path="/test" element={<Test />} />
+      </Routes>
     </Router>
   );
 }
