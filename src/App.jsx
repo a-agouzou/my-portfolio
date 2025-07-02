@@ -1,17 +1,17 @@
-import React from "react";
+import { Route } from "react-router";
 import "./assets/styles/global.css";
 import Portfolio from "./pages/Portfolio";
-import AnnotationScrollReporter from "./components/AnnotationConnector"
+import { BrowserRouter as Router } from "react-router-dom";
+import Test from "./pages/Test";
+
 function App() {
-  const ANNOTATION_TOOL_ORIGIN = 'http://localhost:5173'; // Replace with the actual origin of your annotation tool
   return (
-    <>
-    {/* <AnnotationScrollReporter
-      parentOrigin={ANNOTATION_TOOL_ORIGIN}
-    /> */}
-    <Portfolio />
-    </>
-  )
+    <Router>
+      <Route path="/" element={<Portfolio />} />
+      <Route path="/test" element={<Test />} />
+      {/* Add more routes as needed */}
+    </Router>
+  );
 }
 
 export default App;
