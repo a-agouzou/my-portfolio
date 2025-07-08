@@ -5,7 +5,7 @@
     return;
   }
   window.annotationScriptAttached = true;
-
+  let isCommentModeEnabled = false;
   function postScrollPosition() {
     if (window.self !== window.top) {
       const message = {
