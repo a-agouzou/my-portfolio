@@ -128,6 +128,6 @@
     patchHistoryMethods();
     observeVisibilityChanges();
 
-    console.log("Annotation helper script (v3.2) attached successfully.");
+    console.log("Annotation helper script (v4) attached successfully.");
   }
 })();
