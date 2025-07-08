@@ -49,6 +49,58 @@
     }
   }
 
+  // Monitor Element Visibility
+  function observeVisibilityChanges() {
+    const observer = new MutationObserver(() => {
+      const visibleElements = Array.from(document.querySelectorAll("*")).filter(
+        (el) => {
+          if (!(el instanceof HTMLElement)) return false;
+
+          const style = window.getComputedStyle(el);
+          const isVisible =
+            style.display !== "none" &&
+            style.visibility !== "hidden" &&
+            style.opacity !== "0" &&
+            el.offsetParent !== null; // Element is actually rendered
+
+          const isDialog =
+            el.classList.contains("modal") ||
+            el.classList.contains("popup") ||
+            el.classList.contains("dropdown") ||
+            el.tagName.toLowerCase() === "dialog" ||
+            el.getAttribute("role") === "dialog";
+
+          return isVisible && isDialog;
+        }
+      );
+
+      if (visibleElements.length > 0) {
+        window.parent.postMessage(
+          {
+            type: "VISIBLE_UI_ELEMENT_DETECTED",
+            payload: {
+              count: visibleElements.length,
+              elements: visibleElements.map((el) => ({
+                tag: el.tagName,
+                class: el.className,
+                id: el.id,
+                role: el.getAttribute("role"),
+              })),
+            },
+          },
+          PARENT_ORIGIN
+        );
+      }
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+      attributeFilter: ["style", "class"],
+    });
+  }
+
   // Monitor client-side routing (SPA navigation)
   function patchHistoryMethods() {
     const originalPushState = history.pushState;
@@ -74,6 +126,7 @@
     postScrollPosition();
     postPageUrl();
     patchHistoryMethods();
+    observeVisibilityChanges();
 
     console.log("Annotation helper script (v3.2) attached successfully.");
   }
