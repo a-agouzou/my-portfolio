@@ -52,29 +52,28 @@
   // Monitor Element Visibility
   function observeVisibilityChanges() {
     const observer = new MutationObserver(() => {
-      const visibleElements = Array.from(document.querySelectorAll("*")).filter(
-        (el) => {
-          if (!(el instanceof HTMLElement)) return false;
-
-          const style = window.getComputedStyle(el);
-          const isVisible =
-            style.display !== "none" &&
-            style.visibility !== "hidden" &&
-            style.opacity !== "0" &&
-            el.offsetParent !== null; // Element is actually rendered
-
-          const isDialog =
-            el.classList.contains("modal") ||
-            el.classList.contains("popup") ||
-            el.classList.contains("dropdown") ||
-            el.tagName.toLowerCase() === "dialog" ||
-            el.getAttribute("role") === "dialog";
-
-          return isVisible && isDialog;
-        }
+      const candidates = document.querySelectorAll(
+        ".modal, .popup, .dropdown, dialog, [role='dialog'], [data-popup]"
       );
 
+      const visibleElements = Array.from(candidates).filter((el) => {
+        if (!(el instanceof HTMLElement)) return false;
+
+        const style = window.getComputedStyle(el);
+        const isVisible =
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          style.opacity !== "0" &&
+          el.offsetParent !== null;
+
+        return isVisible;
+      });
+
       if (visibleElements.length > 0) {
+        console.log(
+          `Detected ${visibleElements.length} visible UI elements:`,
+          visibleElements
+        );
         window.parent.postMessage(
           {
             type: "VISIBLE_UI_ELEMENT_DETECTED",
@@ -128,6 +127,6 @@
     patchHistoryMethods();
     observeVisibilityChanges();
 
-    console.log("Annotation helper script (v4) attached successfully.");
+    console.log("Annotation helper script (v4.1) attached successfully.");
   }
 })();
