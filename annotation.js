@@ -131,7 +131,8 @@
           top: rect.top,
           width: rect.width,
           height: rect.height
-        }
+        },
+        pageUrl : window.location.href, // The URL of the page
       },
     }, "*");
   };
