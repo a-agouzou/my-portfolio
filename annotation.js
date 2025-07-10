@@ -117,7 +117,7 @@
       zIndex: "99998", // High z-index but below comment pins
       display: "none", // Hidden by default
       pointerEvents: "none", // So it doesn't interfere with clicks
-      transition: "all 0.05s ease-out", // Smooth transitions
+      // transition: "all 0.05s ease-out", // Smooth transitions
     });
     document.body.appendChild(overlay);
     highlightOverlay = overlay;
@@ -262,7 +262,7 @@
     document.addEventListener("mouseout", handleMouseOut);
     document.addEventListener("click", handleClick, true);
     window.addEventListener("resize", handleViewportChange);
-    window.addEventListener("scroll", handleViewportChange);
+    // window.addEventListener("scroll", handleViewportChange);
 
     // Let the parent know the iframe is ready to receive commands
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
