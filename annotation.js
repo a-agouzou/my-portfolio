@@ -250,7 +250,7 @@
   let viewportChangeTimeout;
   const handleViewportChange = () => {
     clearTimeout(viewportChangeTimeout);
-    viewportChangeTimeout = setTimeout(renderCommentPins, 150); // Debounced for performance
+    viewportChangeTimeout = setTimeout(renderCommentPins, 50); // Debounced for performance
   };
 
   // When the page content is fully loaded...
@@ -262,7 +262,7 @@
     document.addEventListener("mouseout", handleMouseOut);
     document.addEventListener("click", handleClick, true);
     window.addEventListener("resize", handleViewportChange);
-    // window.addEventListener("scroll", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange);
 
     // Let the parent know the iframe is ready to receive commands
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
