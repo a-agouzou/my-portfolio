@@ -1,118 +1,100 @@
-// feedback-script.js
-
 (() => {
-  // Only run if we are inside an iframe
+  // Only run if we are inside an iframe managed by your platform
   if (window.self === window.top) {
-    return; // Halt if not embedded
+    return;
   }
 
+  console.log("Feedback Script Initialized.");
+
   let currentMode = "preview"; // 'preview' or 'interactive'
-  let comments = [];
-  let highlightedCommentId = null;
+  let highlightOverlay = null;
 
-  // ===== Helper Functions =====
-
-  const getUniqueXPath = (element) => {
-    // (Your robust XPath generation function goes here)
-    if (element.id) return `id("${element.id}")`;
-    if (element === document.body) return element.tagName.toLowerCase();
-    let siblingIndex = 1;
-    let sibling = element.previousElementSibling;
-    while (sibling) {
-      if (sibling.tagName === element.tagName) siblingIndex++;
-      sibling = sibling.previousElementSibling;
+  /**
+   * Creates the highlight overlay element and adds it to the body.
+   * This is done once to avoid creating/destroying it repeatedly.
+   */
+  const createHighlightOverlay = () => {
+    if (document.getElementById("feedback-highlight-overlay")) {
+      return;
     }
-    return `${getUniqueXPath(element.parentElement)}/${element.tagName.toLowerCase()}[${siblingIndex}]`;
+    const overlay = document.createElement("div");
+    overlay.id = "feedback-highlight-overlay";
+    Object.assign(overlay.style, {
+      position: "absolute",
+      backgroundColor: "rgba(100, 150, 255, 0.4)", // A nice blue highlight
+      border: "2px solid rgba(50, 100, 255, 0.8)",
+      borderRadius: "4px",
+      zIndex: "99998", // High z-index but below comment pins
+      display: "none", // Hidden by default
+      pointerEvents: "none", // So it doesn't interfere with clicks
+      transition: "all 0.05s ease-out", // Smooth transitions
+    });
+    document.body.appendChild(overlay);
+    highlightOverlay = overlay;
   };
 
-  const renderCommentPins = () => {
-    // Clear existing pins
-    document.querySelectorAll(".feedback-comment-pin").forEach(pin => pin.remove());
+  /**
+   * The main event handler for mouse movement inside the iframe.
+   */
+  const handleMouseOver = (event) => {
+    // We only care about this in interactive mode
+    if (currentMode !== "interactive") {
+      return;
+    }
 
-    comments.forEach(comment => {
-      try {
-        const element = document.evaluate(comment.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const pin = document.createElement("div");
-          pin.className = "feedback-comment-pin";
-          pin.dataset.commentId = comment.id;
+    const target = event.target;
+    
+    // Ignore the overlay itself or the body
+    if (target.id === 'feedback-highlight-overlay' || target === document.body) {
+      return;
+    }
 
-          const isSelected = comment.id === highlightedCommentId;
+    // Get the position and size of the hovered element
+    const rect = target.getBoundingClientRect();
 
-          // Apply styles
-          Object.assign(pin.style, {
-            position: "absolute",
-            left: `${rect.left + window.scrollX}px`,
-            top: `${rect.top + window.scrollY}px`,
-            width: isSelected ? "24px" : "20px",
-            height: isSelected ? "24px" : "20px",
-            backgroundColor: "red",
-            borderRadius: "50%",
-            border: isSelected ? "3px solid #00FFFF" : "2px solid white",
-            zIndex: "99999",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            transform: "translate(-50%, -50%)", // Center the pin
-          });
-
-          // Add click listener to notify the parent
-          pin.addEventListener("click", (e) => {
-            e.stopPropagation();
-            window.parent.postMessage({ type: "COMMENT_SELECTED", payload: { id: comment.id } }, "*");
-          });
-
-          document.body.appendChild(pin);
-        }
-      } catch (e) { /* ignore errors */ }
+    // Update the overlay's position and size
+    Object.assign(highlightOverlay.style, {
+      display: "block",
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+      left: `${rect.left + window.scrollX}px`,
+      top: `${rect.top + window.scrollY}px`,
     });
   };
 
-  // ===== Event Listeners =====
+  /**
+   * Hides the overlay when the mouse leaves the window.
+   */
+  const handleMouseOut = () => {
+    if (highlightOverlay) {
+      highlightOverlay.style.display = 'none';
+    }
+  };
 
   // Listen for commands from the parent (your React app)
   window.addEventListener("message", (event) => {
     const data = event.data;
-    switch (data.type) {
-      case "LOAD_DATA":
-        comments = data.payload.comments || [];
-        renderCommentPins();
-        break;
-      case "SET_MODE":
-        currentMode = data.payload.mode;
-        document.body.style.cursor = currentMode === "interactive" ? "crosshair" : "default";
-        break;
-      case "HIGHLIGHT_COMMENT":
-        highlightedCommentId = data.payload.commentId;
-        renderCommentPins(); // Re-render to show the highlight
-        break;
+    if (data.type === "SET_MODE") {
+      currentMode = data.payload.mode;
+      console.log(`Feedback Script: Mode set to -> ${currentMode}`);
+      
+      // Update cursor and show/hide the overlay based on mode
+      document.body.style.cursor = currentMode === "interactive" ? "crosshair" : "default";
+      if(highlightOverlay) {
+        highlightOverlay.style.display = 'none';
+      }
     }
   });
 
-  // Listen for clicks when in interactive mode to create new comments
-  document.addEventListener("click", (e) => {
-    if (currentMode !== "interactive") return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    const xpath = getUniqueXPath(e.target);
-    // In a real app, you'd show a UI to enter text. Here we just notify the parent.
-    // The parent (React app) would then handle the state change and send the updated comment list back.
-    window.parent.postMessage({ type: "NEW_COMMENT_POINTER", payload: { xpath, x: e.clientX, y: e.clientY } }, "*");
-
-  }, true);
-  
-  // Debounce re-rendering pins on scroll or resize
-  let resizeTimeout;
-  const onViewportChange = () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(renderCommentPins, 100);
-  };
-  window.addEventListener("resize", onViewportChange);
-  window.addEventListener("scroll", onViewportChange);
-
-  // Let the parent know the iframe is ready to receive data
+  // When the page content is fully loaded...
   window.addEventListener('DOMContentLoaded', () => {
+    createHighlightOverlay();
+    
+    // Attach the mouseover listener to the document
+    document.addEventListener("mouseover", handleMouseOver);
+    document.addEventListener("mouseout", handleMouseOut);
+
+    // Let the parent know the iframe is ready to receive commands
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
   });
 })();
