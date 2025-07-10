@@ -24,7 +24,13 @@
       return; // Nothing to render
     }
 
-    comments.forEach((comment) => {
+    // filter comments by page URL
+    const currentPageUrl = window.location.href;
+    const filteredComments = comments.filter(
+      (comment) => comment.page === currentPageUrl
+    );
+
+    filteredComments.forEach((comment) => {
       try {
         // 1. Find the element using the stored XPath
         const targetElement = document.evaluate(
