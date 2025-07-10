@@ -43,23 +43,47 @@
         const pinY = currentRect.top + window.scrollY + (currentRect.height * relativeY);
         
         // 4. Create and style the pin element
-        const pin = document.createElement("div");
+       const pin = document.createElement("div");
         pin.className = "feedback-comment-pin";
         pin.dataset.commentId = comment.id;
+
+        // The number to display inside the pin
+        pin.textContent = comment.commentNumber;
 
         Object.assign(pin.style, {
           position: "absolute",
           left: `${pinX}px`,
           top: `${pinY}px`,
-          width: "20px",
-          height: "20px",
-          backgroundColor: "#F44336", // A nice red color
-          borderRadius: "50%",
+          
+          // Use min-width to ensure the circle doesn't get too small
+          minWidth: "24px",
+          height: "24px",
+          padding: "0 6px", // Add horizontal padding for numbers > 9
+          
+          // --- Visual Styling ---
+          backgroundColor: "#2563EB", // This is Tailwind's blue-600
+          color: "white",
+          borderRadius: "50%", // Fully rounded
           border: "2px solid white",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.35)",
+          
+          // --- Centering the Number ---
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          
+          // --- Font Styling ---
+          fontSize: "12px",
+          fontWeight: "bold",
+          fontFamily: "sans-serif",
+          
+          // --- Other Properties ---
           zIndex: "99999",
           cursor: "pointer",
-          transform: "translate(-50%, -50%)", // Center the pin on the exact coordinate
+          transform: "translate(-50%, -50%)",
+          
+          // Add a smooth transition for selection later
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
         });
 
         // 5. Add a click listener to notify the parent when a pin is selected
