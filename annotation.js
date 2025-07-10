@@ -79,7 +79,7 @@
       console.log(`Feedback Script: Mode set to -> ${currentMode}`);
       
       // Update cursor and show/hide the overlay based on mode
-      document.body.style.cursor = currentMode === "interactive" ? "crosshair" : "default";
+      // document.body.style.cursor = currentMode === "interactive" ? "crosshair" : "default";
       if(highlightOverlay) {
         highlightOverlay.style.display = 'none';
       }
