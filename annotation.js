@@ -109,12 +109,6 @@
           e.stopPropagation();
           e.preventDefault();
           const selectedId = e.currentTarget.dataset.commentId;
-          // if (isSelected) {
-          //   // Apply styles for the selected pin
-          //   pin.style.transform = "translate(-50%, -50%) scale(1.15)";
-          //   pin.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.5)"; // A blue glow
-          //   pin.style.zIndex = "100000"; // Bring it to the very front
-          // }
           window.parent.postMessage(
             {
               type: "COMMENT_SELECTED",
@@ -126,7 +120,7 @@
 
         document.body.appendChild(pin);
       } catch (e) {
-        console.error("Error rendering pin for comment:", comment, e);
+        // console.error("Error rendering pin for comment:", comment, e);
       }
     });
   };
