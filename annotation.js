@@ -1,5 +1,4 @@
 (() => {
-  // Only run if we are inside an iframe managed by your platform
   if (window.self === window.top) {
     return;
   }
@@ -71,6 +70,72 @@
     }
   };
 
+   /**
+   * Generates a unique XPath for a given element.
+   * This is a critical helper function.
+   */
+  const getUniqueXPath = (element) => {
+    if (element.id) {
+      // If the element has an ID, that's the most reliable selector
+      return `id("${element.id}")`;
+    }
+    // Stop at the body tag
+    if (element.tagName.toLowerCase() === 'body') {
+      return 'body';
+    }
+
+    // Calculate the element's index among its siblings of the same tag
+    let siblingIndex = 1;
+    let sibling = element.previousElementSibling;
+    while (sibling) {
+      if (sibling.tagName === element.tagName) {
+        siblingIndex++;
+      }
+      sibling = sibling.previousElementSibling;
+    }
+
+    const parentXPath = getUniqueXPath(element.parentElement);
+    return `${parentXPath}/${element.tagName.toLowerCase()}[${siblingIndex}]`;
+  };
+
+
+    // NEW: Add a click listener
+  const handleClick = (event) => {
+    if (currentMode !== "interactive") {
+      return;
+    }
+
+    // Stop the event from doing anything else (like navigating)
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const target = event.target;
+    const xpath = getUniqueXPath(target);
+    const rect = target.getBoundingClientRect();
+
+    console.log(`Feedback Script: Click captured. XPath: ${xpath}`);
+
+    // Send a message to the parent with all the necessary info
+    window.parent.postMessage({
+      type: "NEW_COMMENT_CLICK",
+      payload: {
+        xpath: xpath,
+        // We send the coordinates relative to the iframe's viewport
+        clickPosition: {
+          x: event.clientX,
+          y: event.clientY,
+        },
+        // Also send info about the element that was clicked
+        elementRect: {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height
+        }
+      },
+    }, "*");
+  };
+
   // Listen for commands from the parent (your React app)
   window.addEventListener("message", (event) => {
     const data = event.data;
@@ -79,7 +144,7 @@
       console.log(`Feedback Script: Mode set to -> ${currentMode}`);
       
       // Update cursor and show/hide the overlay based on mode
-      // document.body.style.cursor = currentMode === "interactive" ? "crosshair" : "default";
+      document.body.style.cursor = currentMode === "interactive" ? "crosshair" : "default";
       if(highlightOverlay) {
         highlightOverlay.style.display = 'none';
       }
@@ -93,6 +158,7 @@
     // Attach the mouseover listener to the document
     document.addEventListener("mouseover", handleMouseOver);
     document.addEventListener("mouseout", handleMouseOut);
+    document.addEventListener("click", handleClick, true);
 
     // Let the parent know the iframe is ready to receive commands
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
