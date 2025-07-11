@@ -20,9 +20,12 @@
     document
       .querySelectorAll(".feedback-comment-pin")
       .forEach((pin) => pin.remove());
-
-    if (comments.length > 0) {
-      comments.forEach((comment) => {
+      
+    const commentsOfCurrentPage = comments.filter(
+      (comment) => comment.page === window.location.href
+    );
+    if (commentsOfCurrentPage.length > 0) {
+      commentsOfCurrentPage.forEach((comment) => {
         try {
           const targetElement = document.evaluate(
             comment.xpath,
@@ -31,15 +34,21 @@
             XPathResult.FIRST_ORDERED_NODE_TYPE,
             null
           ).singleNodeValue;
-          const isCommentForPage =
-            comment.page === window.location.href &&
+          const isVisible =
             targetElement &&
-            targetElement.offsetWidth > 0 &&
-            targetElement.offsetHeight > 0;
-
-          if (!isCommentForPage) {
-            return; // Skip this comment if its element is not found or visible
+            (targetElement.offsetWidth > 0 || targetElement.offsetHeight > 0);
+          
+          if (!isVisible && !comment.isHidden) {
+            window.parent.postMessage(
+              {
+                type: "COMMENT_VISIBILITY_HIDDEN",
+                payload: { id: comment.id},
+              },
+              "*"
+            );
           }
+          if (!targetElement || !isVisible) 
+            return ;
 
           const currentRect = targetElement.getBoundingClientRect();
 
@@ -263,5 +272,7 @@
 
     window.addEventListener("popstate", handleViewportChange);
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
+    // add an event listener for any updates in the dom and call renderCommentPins
+    document.addEventListener("DOMSubtreeModified", renderCommentPins);
   });
 })();
