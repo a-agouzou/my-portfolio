@@ -38,7 +38,7 @@
             targetElement &&
             (targetElement.offsetWidth > 0 || targetElement.offsetHeight > 0);
 
-          consoleq.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible}`);
+          console.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible}`);
           
           if (!isVisible && !comment.isHidden) {
             window.parent.postMessage(
@@ -275,6 +275,6 @@
     window.addEventListener("popstate", handleViewportChange);
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
     // add an event listener for any updates in the dom and call renderCommentPins
-    // document.addEventListener("DOMSubtreeModified", renderCommentPins);
+    document.addEventListener("DOMSubtreeModified", renderCommentPins);
   });
 })();
