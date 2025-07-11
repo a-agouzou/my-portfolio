@@ -38,7 +38,7 @@
             targetElement &&
             (targetElement.offsetWidth > 0 || targetElement.offsetHeight > 0);
 
-          console.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible}`);
+          console.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible} and isHidden: ${comment.isHidden}`);
           
           if (!isVisible && !comment.isHidden) {
             window.parent.postMessage(
