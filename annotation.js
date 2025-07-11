@@ -230,7 +230,7 @@
   let viewportChangeTimeout;
   const handleViewportChange = () => {
     clearTimeout(viewportChangeTimeout);
-    viewportChangeTimeout = setTimeout(renderCommentPins, 50);
+    viewportChangeTimeout = setTimeout(renderCommentPins, 0);
   };
 
   // Initial setup when the iframe content is loaded
