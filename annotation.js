@@ -37,6 +37,8 @@
           const isVisible =
             targetElement &&
             (targetElement.offsetWidth > 0 || targetElement.offsetHeight > 0);
+
+          consoleq.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible}`);
           
           if (!isVisible && !comment.isHidden) {
             window.parent.postMessage(
