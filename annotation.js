@@ -275,6 +275,6 @@
     window.addEventListener("popstate", handleViewportChange);
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
     // add an event listener for any updates in the dom and call renderCommentPins
-    document.addEventListener("DOMSubtreeModified", renderCommentPins);
+    // document.addEventListener("DOMSubtreeModified", renderCommentPins);
   });
 })();
