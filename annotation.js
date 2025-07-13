@@ -129,16 +129,18 @@
         }
       });
     }
-    console.log(`Hidden comments of this page:`, hiddenComments);
-    window.parent.postMessage(
-      {
-        type: "COMMENT_VISIBILITY_HIDDEN",
-        payload: {
-          hiddenComments: hiddenComments,
+    console.log(`Hidden comments `, hiddenComments, "on page", window.location.href);
+    if (hiddenComments.length > 0) {
+      window.parent.postMessage(
+        {
+          type: "COMMENT_VISIBILITY_HIDDEN",
+          payload: {
+            hiddenComments: hiddenComments,
+          },
         },
-      },
-      "*"
-    );
+        "*"
+      );
+    }
   };
 
   /**
