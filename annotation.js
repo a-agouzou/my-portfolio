@@ -25,6 +25,7 @@
       (comment) => comment.page === window.location.href
     );
     if (commentsOfCurrentPage.length > 0) {
+      console.log(`Rendering ${commentsOfCurrentPage.length} comment pins for page: ${window.location.href}`);
       commentsOfCurrentPage.forEach((comment) => {
         try {
           const targetElement = document.evaluate(
@@ -37,10 +38,11 @@
           const isVisible =
             targetElement &&
             (targetElement.offsetWidth > 0 || targetElement.offsetHeight > 0);
-
+          
           console.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible} and isHidden: ${comment.isHidden}`);
           
-          if (!isVisible && !comment.isHidden) {
+          if (!isVisible && !comment.isHidden && comment.page === window.location.href) {
+            console.log(`Comment ${comment.id} is not visible, marking as hidden. found at page : ${window.location.href}`);
             window.parent.postMessage(
               {
                 type: "COMMENT_VISIBILITY_HIDDEN",
