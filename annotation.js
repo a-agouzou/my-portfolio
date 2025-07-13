@@ -6,6 +6,7 @@
   console.log("Feedback Script Initialized. V1.0");
 
   let comments = [];
+  let hiddenComments = [];
   let currentMode = "preview";
   let highlightOverlay = null;
   let highlightedCommentId = null;
@@ -20,12 +21,11 @@
     document
       .querySelectorAll(".feedback-comment-pin")
       .forEach((pin) => pin.remove());
-      
+
     const commentsOfCurrentPage = comments.filter(
       (comment) => comment.page === window.location.href
     );
     if (commentsOfCurrentPage.length > 0) {
-      // console.log(`Rendering ${commentsOfCurrentPage.length} comment pins for page: ${window.location.href}`);
       commentsOfCurrentPage.forEach((comment) => {
         try {
           const targetElement = document.evaluate(
@@ -38,27 +38,28 @@
           const isVisible =
             targetElement &&
             (targetElement.offsetWidth > 0 || targetElement.offsetHeight > 0);
-          
-          // console.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible} and isHidden: ${comment.isHidden}`);
-          
-          if (!isVisible && !comment.isHidden && comment.page === window.location.href) {
+
+          if (
+            !isVisible &&
+            !comment.isHidden &&
+            comment.page === window.location.href
+          ) {
             console.log(`Comment ${comment.commentNumber} is not visible`);
-            // isVisible 
-            console.log(`Comment ${comment.commentNumber} isVisible?`, isVisible);
+            // isVisible
+            console.log(
+              `Comment ${comment.commentNumber} isVisible?`,
+              isVisible
+            );
             // comment.isHidden
-            console.log(`Comment ${comment.commentNumber} isHidden?`, comment.isHidden);
+            console.log(
+              `Comment ${comment.commentNumber} isHidden?`,
+              comment.isHidden
+            );
             // window.location.href
             console.log(`Comment ${comment.commentNumber} page:`, comment.page);
-            window.parent.postMessage(
-              {
-                type: "COMMENT_VISIBILITY_HIDDEN",
-                payload: { id: comment.id},
-              },
-              "*"
-            );
+            hiddenComments.push(comment.id);
           }
-          if (!targetElement || !isVisible) 
-            return ;
+          if (!targetElement || !isVisible) return;
 
           const currentRect = targetElement.getBoundingClientRect();
 
@@ -128,6 +129,16 @@
         }
       });
     }
+    console.log(`Hidden comments of this page:`, hiddenComments);
+    window.parent.postMessage(
+      {
+        type: "COMMENT_VISIBILITY_HIDDEN",
+        payload: {
+          hiddenComments: hiddenComments,
+        },
+      },
+      "*"
+    );
   };
 
   /**
@@ -249,7 +260,7 @@
   let viewportChangeTimeout;
   const handleViewportChange = () => {
     clearTimeout(viewportChangeTimeout);
-    viewportChangeTimeout = setTimeout(renderCommentPins, 0);
+    viewportChangeTimeout = setTimeout(renderCommentPins, 50);
   };
 
   // Initial setup when the iframe content is loaded
