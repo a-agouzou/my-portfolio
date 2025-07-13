@@ -26,6 +26,7 @@
       (comment) => comment.page === window.location.href
     );
     if (commentsOfCurrentPage.length > 0) {
+      hiddenComments = [];
       commentsOfCurrentPage.forEach((comment) => {
         try {
           const targetElement = document.evaluate(
