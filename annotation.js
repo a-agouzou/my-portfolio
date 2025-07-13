@@ -42,7 +42,13 @@
           // console.log(`Rendering pin for comment ${comment.commentNumber} at with visibility: ${isVisible} and isHidden: ${comment.isHidden}`);
           
           if (!isVisible && !comment.isHidden && comment.page === window.location.href) {
-            console.log(`Comment ${comment.id} is not visible, marking as hidden. found at page : ${window.location.href}`);
+            console.log(`Comment ${comment.commentNumber} is not visible`);
+            // isVisible 
+            console.log(`Comment ${comment.commentNumber} isVisible?`, isVisible);
+            // comment.isHidden
+            console.log(`Comment ${comment.commentNumber} isHidden?`, comment.isHidden);
+            // window.location.href
+            console.log(`Comment ${comment.commentNumber} page:`, comment.page);
             window.parent.postMessage(
               {
                 type: "COMMENT_VISIBILITY_HIDDEN",
