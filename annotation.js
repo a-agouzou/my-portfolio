@@ -3,13 +3,14 @@
   if (window.self === window.top) {
     return; // Halt if not embedded
   }
-  console.log("Feedback Script Initialized. V1.0");
+  console.log("Feedback Script Initialized. V1.1");
 
   let comments = [];
   let hiddenComments = [];
   let currentMode = "preview";
   let highlightOverlay = null;
   let highlightedCommentId = null;
+  let observer;
 
   // 2. CORE FUNCTIONS
 
@@ -18,6 +19,10 @@
    * and reporting visibility status back to the parent application.
    */
   const renderCommentPins = () => {
+    if (observer) {
+      observer.disconnect();
+    }
+
     document
       .querySelectorAll(".feedback-comment-pin")
       .forEach((pin) => pin.remove());
@@ -130,7 +135,12 @@
         }
       });
     }
-    console.log(`Hidden comments `, hiddenComments, "on page", window.location.href);
+    console.log(
+      `Hidden comments `,
+      hiddenComments,
+      "on page",
+      window.location.href
+    );
     if (hiddenComments.length > 0) {
       window.parent.postMessage(
         {
@@ -141,6 +151,13 @@
         },
         "*"
       );
+    }
+    if (observer) {
+      observer.observe(document.body, {
+        childList: true, // we are interested in additions/removals of nodes
+        subtree: true, // and in all their descendants
+        attributes: true, // and in attribute changes
+      });
     }
   };
 
@@ -269,6 +286,12 @@
   // Initial setup when the iframe content is loaded
   window.addEventListener("DOMContentLoaded", () => {
     createHighlightOverlay();
+    observer = new MutationObserver(handleViewportChange);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true, // It's good to watch attributes too for style changes
+    });
     document.addEventListener("mouseover", handleMouseOver);
     document.addEventListener("mouseout", () => {
       if (highlightOverlay) highlightOverlay.style.display = "none";
