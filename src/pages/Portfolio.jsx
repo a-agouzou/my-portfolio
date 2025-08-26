@@ -30,14 +30,14 @@ const Portfolio = () => {
         <Contact />
         <Footer />
         {/* button to navigate to /test page */}
-        <div className="fixed bottom-4 right-4">
+        {/* <div className="fixed bottom-4 right-4">
           <Link
             to="/test"
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition-all duration-300"
           >
             Go to Test Page
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   );
